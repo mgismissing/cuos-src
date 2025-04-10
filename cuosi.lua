@@ -1,9 +1,9 @@
-local required_version = "0.1"
+local required_version = nil
 
 print("Checking for CUOSIM...")
 if fs.exists("/cuos/cuosim.lua") then
     print("A valid installation of CUOSIM has been found. Proceeding...")
-    os.run("/cuos/cuosim.lua " .. required_version)
+    os.run({}, "/cuos/cuosim.lua", required_version)
 else
     print("CUOSIM could not be found on your system, starting automatic installation...")
     print("Fetching data...")
@@ -12,7 +12,7 @@ else
     if response then
         print("Saving data...")
         local content = response.readAll()
-        local file = fs.open(filename, "w")
+        local file = fs.open("/cuos/cuosim.lua", "w")
         file.write(content)
         file.close()
         print("Done.")
