@@ -74,7 +74,7 @@ else
         local versions = fs.list(versions_path)
         local toRun = ""
         for k, v in pairs(versions) do
-            if fs.isDir(v) then print(v) end
+            if fs.isDir(versions_path .. v) then print(v) end
         end
         print("\nType a version name to start it, or anything else to install a new one.")
         ans = read()
