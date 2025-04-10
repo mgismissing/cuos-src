@@ -1,1 +1,3 @@
-/download.lua
+*
+!/copperos.lua
+!/lib/*.lua
