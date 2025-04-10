@@ -7,7 +7,7 @@ if fs.exists("/cuos/cuosim.lua") then
 else
     print("CUOSIM could not be found on your system, starting automatic installation...")
     print("Fetching data...")
-    local cuos_src_url = "http://cuos.empties.it/"
+    local cuos_src_url = "http://raw.githubusercontent.com/mgismissing/cuos-src/refs/heads/main/"
     local response = http.get(cuos_src_url .. "cuosim.lua")
     if response then
         print("Saving data...")
