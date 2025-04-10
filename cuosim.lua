@@ -64,15 +64,18 @@ function extractTar(path, rootDir)
 end
 
 local toInstall = ""
+local toRun = ""
+local action = "install"
 
 if ver then
+    action = "install"
     print("Installing requested version (" .. ver .. ")...")
     toInstall = ver
 else
     if fs.exists(versions_path) and fs.list(versions_path)[1] then
         print("Available CopperOS versions:")
         local versions = fs.list(versions_path)
-        local toRun = ""
+        
         for k, v in pairs(versions) do
             if fs.isDir(versions_path .. v) then print(v) end
         end
@@ -80,8 +83,9 @@ else
         ans = read()
         for k, v in pairs(versions) do
             if v == ans then
+                action = "run"
                 toRun = ans
-                ans = "n"
+                break
             end
         end
     else
@@ -89,7 +93,7 @@ else
         print("Would you like to install one? [Y/n]")
         ans = string.lower(read())
     end
-    if ans ~= "n" then
+    if ans ~= "n" and action == "install" then
         print("Which version would you like to install?")
         print("(Press Enter to install the latest version)")
         print("To see a list of versions, go to")
@@ -106,36 +110,46 @@ else
     end
 end
 
-local releases = textutils.unserializeJSON(http.get(cuos_repo_api .. "releases").readAll())
-local installLink = ""
-for _, v in pairs(releases) do
-    if toInstall == "latest" or v["tag_name"] == toInstall then
-        toInstall = v["tag_name"]
-        installLink = cuos_repo .. "releases/download/" .. toInstall .. "/cuos.tar"
-        valid = true
-        break
+if action == "install" then
+    local releases = textutils.unserializeJSON(http.get(cuos_repo_api .. "releases").readAll())
+    local installLink = ""
+    for _, v in pairs(releases) do
+        if toInstall == "latest" or v["tag_name"] == toInstall then
+            toInstall = v["tag_name"]
+            installLink = cuos_repo .. "releases/download/" .. toInstall .. "/cuos.tar"
+            valid = true
+            break
+        end
     end
-end
-if valid then
-    print("Downloading version " .. toInstall .. "...")
-    if http.get(installLink, {}, true) then
-        local file_src = http.get(installLink, {}, true).readAll()
-        local file_path = versions_path .. toInstall .. "/cuos.tar"
-        local file = fs.open(file_path, "wb")
-        file.write(file_src)
-        file.close()
-        print("Extracting tar file...")
-        extractTar(file_path, versions_path .. toInstall .. "/")
-        print("Cleaning up...")
-        fs.delete(file_path)
-        print("CopperOS " .. toInstall .. " installed successfully.")
+    if valid then
+        print("Downloading version " .. toInstall .. "...")
+        if http.get(installLink, {}, true) then
+            local file_src = http.get(installLink, {}, true).readAll()
+            local file_path = versions_path .. toInstall .. "/cuos.tar"
+            local file = fs.open(file_path, "wb")
+            file.write(file_src)
+            file.close()
+            print("Extracting tar file...")
+            extractTar(file_path, versions_path .. toInstall .. "/")
+            print("Cleaning up...")
+            fs.delete(file_path)
+            print("CopperOS " .. toInstall .. " installed successfully.")
+        else
+            term.setTextColor(colors.red)
+            print("Could not fetch version " .. toInstall .. " from \"" .. installLink .. "\"")
+            term.setTextColor(colors.white)
+        end
     else
         term.setTextColor(colors.red)
-        print("Could not fetch version " .. toInstall .. " from \"" .. installLink .. "\"")
+        print("Version doesn't exist. Please specify a valid CopperOS version.")
         term.setTextColor(colors.white)
     end
 else
-    term.setTextColor(colors.red)
-    print("Version doesn't exist. Please specify a valid CopperOS version.")
-    term.setTextColor(colors.white)
+    print("In which mode do you want CUOS to run in [GUI/cli]?")
+    ans = string.lower(read())
+    local mode = "gui"
+    if ans == "cli" then
+        mode = "cli"
+    end
+    os.run({}, versions_path .. toRun .. "/cuos-" .. mode .. "lua")
 end
