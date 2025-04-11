@@ -183,7 +183,7 @@ elseif action == "run" then
             os.run({}, run_path)
         else
             term.setTextColor(colors.red)
-            print("File not found (Try reinstalling this version)")
+            print("File not found: " .. run_path .. " (Try reinstalling this version)")
             term.setTextColor(colors.white)
         end
     end
