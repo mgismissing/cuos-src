@@ -178,7 +178,7 @@ elseif action == "run" then
         if ans == "cli" then
             mode = "cli"
         end
-        local run_path = versions_path .. toRun .. "/cuprum-" .. mode .. "lua"
+        local run_path = versions_path .. toRun .. "/cuprum-" .. mode .. ".lua"
         if fs.exists(run_path) then
             os.run({}, run_path)
         else
