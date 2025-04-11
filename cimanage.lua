@@ -168,7 +168,7 @@ if action == "install" then
     end
 elseif action == "run" then
     if string.sub(toRun, -3, -1) == "api" then
-        term.setTextColor(colors.yellow)
+        term.setTextColor(colors.red)
         print("The API version of Cuprum is not meant to be run directly. Install the normal version to do so.")
         term.setTextColor(colors.white)
     else
