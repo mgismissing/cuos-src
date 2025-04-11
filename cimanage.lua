@@ -92,6 +92,9 @@ else
         print("No Cuprum installation detected.")
         print("Would you like to install one? [Y/n]")
         ans = string.lower(read())
+        if ans ~= "n" then
+            action = "install"
+        end
     end
     if ans ~= "n" and action == "install" then
         print("Which version would you like to install?")
