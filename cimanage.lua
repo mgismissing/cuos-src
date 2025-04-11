@@ -6,6 +6,7 @@ print("Welcome to the Cuprum Installations Manager!")
 local args = {...}
 local ver = args[1]
 local versions_path = "/cuprum/versions/"
+local apiString = ""
 
 -- Tar Extractor
 function extractTar(path, rootDir)
@@ -73,8 +74,9 @@ local action = ""
 
 if ver then
     action = "install"
-    print("Installing requested version (" .. ver .. ")...")
+    apiString = "-api"
     toInstall = ver
+    print("Installing requested version (" .. toInstall .. apiString .. ")...")
 else
     if fs.exists(versions_path) and fs.list(versions_path)[1] then
         print("Available Cuprum versions:")
@@ -83,11 +85,18 @@ else
         for k, v in pairs(versions) do
             if fs.isDir(versions_path .. v) then print(v) end
         end
-        action = "install"
-        print("\nType a version name to start it or anything else to install a new one.")
-        ans = read()
+        print("\nType a version name to start it, \"install\" to install a new one or anything else to quit.")
+        ans = string.lower(read())
+        if ans == "install" then
+            action = "install"
+            print("What do you want to install? [EVERYTHING/api]")
+            ans = string.lower(read())
+            if ans == "api" then
+                apiString = "-api"
+            end
+        end
         for k, v in pairs(versions) do
-            if v == ans then
+            if string.lower(v) == ans then
                 action = "run"
                 toRun = ans
                 break
@@ -99,6 +108,11 @@ else
         ans = string.lower(read())
         if ans ~= "n" then
             action = "install"
+            print("What do you want to install? [EVERYTHING/api]")
+            ans = string.lower(read())
+            if ans == "api" then
+                apiString = "-api"
+            end
         end
     end
     if ans ~= "n" and action == "install" then
@@ -124,27 +138,27 @@ if action == "install" then
     for _, v in pairs(releases) do
         if toInstall == "latest" or v["tag_name"] == toInstall then
             toInstall = v["tag_name"]
-            installLink = cuprum_repo .. "releases/download/" .. toInstall .. "/cuprum.tar"
+            installLink = cuprum_repo .. "releases/download/" .. toInstall .. "/cuprum" .. apiString .. ".tar"
             valid = true
             break
         end
     end
     if valid then
-        print("Downloading version " .. toInstall .. "...")
+        print("Downloading version " .. toInstall .. apiString .. "...")
         if http.get(installLink, {}, true) then
             local file_src = http.get(installLink, {}, true).readAll()
-            local file_path = versions_path .. toInstall .. "/cuprum.tar"
+            local file_path = versions_path .. toInstall .. apiString .. ".tar"
             local file = fs.open(file_path, "wb")
             file.write(file_src)
             file.close()
             print("Extracting tar file...")
-            extractTar(file_path, versions_path .. toInstall .. "/")
+            extractTar(file_path, versions_path .. toInstall .. apiString .. "/")
             print("Cleaning up...")
             fs.delete(file_path)
-            print("Cuprum " .. toInstall .. " installed successfully.")
+            print("Cuprum " .. toInstall .. apiString .. " installed successfully.")
         else
             term.setTextColor(colors.red)
-            print("Could not fetch version " .. toInstall .. " from \"" .. installLink .. "\"")
+            print("Could not fetch version " .. toInstall .. apiString .. " from \"" .. installLink .. "\"")
             term.setTextColor(colors.white)
         end
     else
@@ -153,20 +167,24 @@ if action == "install" then
         term.setTextColor(colors.white)
     end
 elseif action == "run" then
-    print("In which mode do you want CUOS to run in [GUI/cli]?")
-    ans = string.lower(read())
-    local mode = "gui"
-    if ans == "cli" then
-        mode = "cli"
-    end
-    local run_path = versions_path .. toRun .. "/cuprum-" .. mode .. "lua"
-    if fs.exists(run_path) then
-        os.run({}, run_path)
-    else
-        term.setTextColor(colors.red)
-        print("File not found (Try reinstalling this version)")
+    if string.sub(toRun, -3, -1) == "api" then
         term.setTextColor(colors.yellow)
-        print("\nNOTE: All versions that end with \"api\" cannot be run (example: 1.0api). Download the normal version instead.")
+        print("The API version of Cuprum is not meant to be run directly. Install the normal version to do so.")
         term.setTextColor(colors.white)
+    else
+        print("In which mode do you want CUOS to run in [GUI/cli]?")
+        ans = string.lower(read())
+        local mode = "gui"
+        if ans == "cli" then
+            mode = "cli"
+        end
+        local run_path = versions_path .. toRun .. "/cuprum-" .. mode .. "lua"
+        if fs.exists(run_path) then
+            os.run({}, run_path)
+        else
+            term.setTextColor(colors.red)
+            print("File not found (Try reinstalling this version)")
+            term.setTextColor(colors.white)
+        end
     end
 end
