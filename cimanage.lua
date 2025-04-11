@@ -1,11 +1,11 @@
 local _VERSION = "1.0"
 
-local cuos_repo = "http://www.github.com/mgismissing/cuos-src/"
-local cuos_repo_api = "http://api.github.com/repos/mgismissing/cuos-src/"
-print("Welcome to the CopperOS Installations Manager!")
+local cuprum_repo = "http://www.github.com/mgismissing/cuprum-src/"
+local cuprum_repo_api = "http://api.github.com/repos/mgismissing/cuprum-src/"
+print("Welcome to the Cuprum Installations Manager!")
 local args = {...}
 local ver = args[1]
-local versions_path = "/cuos/versions/"
+local versions_path = "/cuprum/versions/"
 
 -- Tar Extractor
 function extractTar(path, rootDir)
@@ -73,7 +73,7 @@ if ver then
     toInstall = ver
 else
     if fs.exists(versions_path) and fs.list(versions_path)[1] then
-        print("Available CopperOS versions:")
+        print("Available Cuprum versions:")
         local versions = fs.list(versions_path)
         
         for k, v in pairs(versions) do
@@ -89,7 +89,7 @@ else
             end
         end
     else
-        print("No CopperOS installation detected.")
+        print("No Cuprum installation detected.")
         print("Would you like to install one? [Y/n]")
         ans = string.lower(read())
     end
@@ -97,7 +97,7 @@ else
         print("Which version would you like to install?")
         print("(Press Enter to install the latest version)")
         print("To see a list of versions, go to")
-        print("github.com/mgismissing/cuos-src/releases")
+        print("github.com/mgismissing/cuprum-src/releases")
         ans = string.lower(read())
         toInstall = ""
         local valid = false
@@ -111,12 +111,12 @@ else
 end
 
 if action == "install" then
-    local releases = textutils.unserializeJSON(http.get(cuos_repo_api .. "releases").readAll())
+    local releases = textutils.unserializeJSON(http.get(cuprum_repo_api .. "releases").readAll())
     local installLink = ""
     for _, v in pairs(releases) do
         if toInstall == "latest" or v["tag_name"] == toInstall then
             toInstall = v["tag_name"]
-            installLink = cuos_repo .. "releases/download/" .. toInstall .. "/cuos.tar"
+            installLink = cuprum_repo .. "releases/download/" .. toInstall .. "/cuprum.tar"
             valid = true
             break
         end
@@ -125,7 +125,7 @@ if action == "install" then
         print("Downloading version " .. toInstall .. "...")
         if http.get(installLink, {}, true) then
             local file_src = http.get(installLink, {}, true).readAll()
-            local file_path = versions_path .. toInstall .. "/cuos.tar"
+            local file_path = versions_path .. toInstall .. "/cuprum.tar"
             local file = fs.open(file_path, "wb")
             file.write(file_src)
             file.close()
@@ -133,7 +133,7 @@ if action == "install" then
             extractTar(file_path, versions_path .. toInstall .. "/")
             print("Cleaning up...")
             fs.delete(file_path)
-            print("CopperOS " .. toInstall .. " installed successfully.")
+            print("Cuprum " .. toInstall .. " installed successfully.")
         else
             term.setTextColor(colors.red)
             print("Could not fetch version " .. toInstall .. " from \"" .. installLink .. "\"")
@@ -141,7 +141,7 @@ if action == "install" then
         end
     else
         term.setTextColor(colors.red)
-        print("Version doesn't exist. Please specify a valid CopperOS version.")
+        print("Version doesn't exist. Please specify a valid Cuprum version.")
         term.setTextColor(colors.white)
     end
 else
@@ -151,5 +151,5 @@ else
     if ans == "cli" then
         mode = "cli"
     end
-    os.run({}, versions_path .. toRun .. "/cuos-" .. mode .. "lua")
+    os.run({}, versions_path .. toRun .. "/cuprum-" .. mode .. "lua")
 end
