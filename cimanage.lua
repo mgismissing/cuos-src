@@ -33,7 +33,11 @@ function extractTar(path, rootDir)
         
         local name, size = parseHeader(header)
         if name ~= "" then
-            print("Extracting \"" .. name .. "\" (" .. size .. " bytes)")
+            if name:sub(-1) == "/" then
+                print("Moving to \"" .. name .. "\"")
+            else
+                print("Extracting \"" .. name .. "\" (" .. size .. " bytes)")
+            end
             
             local blocks = math.ceil(size / 512)
             local content = ""
@@ -79,7 +83,8 @@ else
         for k, v in pairs(versions) do
             if fs.isDir(versions_path .. v) then print(v) end
         end
-        print("\nType a version name to start it, or anything else to install a new one.")
+        action = "install"
+        print("\nType a version name to start it or anything else to install a new one.")
         ans = read()
         for k, v in pairs(versions) do
             if v == ans then
@@ -154,5 +159,14 @@ elseif action == "run" then
     if ans == "cli" then
         mode = "cli"
     end
-    os.run({}, versions_path .. toRun .. "/cuprum-" .. mode .. "lua")
+    local run_path = versions_path .. toRun .. "/cuprum-" .. mode .. "lua"
+    if fs.exists(run_path) then
+        os.run({}, run_path)
+    else
+        term.setTextColor(colors.red)
+        print("File not found (Try reinstalling this version)")
+        term.setTextColor(colors.yellow)
+        print("\nNOTE: All versions that end with \"api\" cannot be run (example: 1.0api). Download the normal version instead.")
+        term.setTextColor(colors.white)
+    end
 end
