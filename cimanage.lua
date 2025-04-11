@@ -150,7 +150,7 @@ if action == "install" then
             file.write(file_src)
             file.close()
             print("Extracting tar file...")
-            extractTar(file_path, versions_path .. toInstall:gsub(".", "_") .. apiString .. "/")
+            extractTar(file_path, versions_path .. toInstall:gsub("%.", "_") .. apiString .. "/")
             print("Cleaning up...")
             fs.delete(file_path)
             print("Cuprum " .. toInstall .. apiString .. " installed successfully.")
