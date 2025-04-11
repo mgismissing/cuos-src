@@ -69,7 +69,6 @@ function extractTar(path, rootDir)
 end
 
 local toInstall = ""
-local toRun = ""
 local action = ""
 
 if ver then
@@ -85,7 +84,7 @@ else
         for k, v in pairs(versions) do
             if fs.isDir(versions_path .. v) then print(v) end
         end
-        print("\nType a version name to start it, \"install\" to install a new one or anything else to quit.")
+        print("\nType a version name to get its path, \"install\" to install a new one or anything else to quit.")
         ans = string.lower(read())
         if ans == "install" then
             action = "install"
@@ -97,8 +96,7 @@ else
         end
         for k, v in pairs(versions) do
             if string.lower(v) == ans then
-                action = "run"
-                toRun = ans
+                print(versions_path .. v .. "/")
                 break
             end
         end
@@ -165,26 +163,5 @@ if action == "install" then
         term.setTextColor(colors.red)
         print("Version doesn't exist. Please specify a valid Cuprum version.")
         term.setTextColor(colors.white)
-    end
-elseif action == "run" then
-    if string.sub(toRun, -3, -1) == "api" then
-        term.setTextColor(colors.red)
-        print("The API version of Cuprum is not meant to be run directly. Install the normal version to do so.")
-        term.setTextColor(colors.white)
-    else
-        print("In which mode do you want Cuprum to run in [GUI/cli]?")
-        ans = string.lower(read())
-        local mode = "gui"
-        if ans == "cli" then
-            mode = "cli"
-        end
-        local run_path = versions_path .. toRun .. "/cuprum-" .. mode .. ".lua"
-        if fs.exists(run_path) then
-            os.run({}, run_path)
-        else
-            term.setTextColor(colors.red)
-            print("File not found: " .. run_path .. " (Try reinstalling this version)")
-            term.setTextColor(colors.white)
-        end
     end
 end
