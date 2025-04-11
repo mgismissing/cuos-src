@@ -144,7 +144,7 @@ if action == "install" then
         print("Version doesn't exist. Please specify a valid Cuprum version.")
         term.setTextColor(colors.white)
     end
-else
+elseif action == "run" then
     print("In which mode do you want CUOS to run in [GUI/cli]?")
     ans = string.lower(read())
     local mode = "gui"
