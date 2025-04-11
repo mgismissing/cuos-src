@@ -65,7 +65,7 @@ end
 
 local toInstall = ""
 local toRun = ""
-local action = "install"
+local action = ""
 
 if ver then
     action = "install"
