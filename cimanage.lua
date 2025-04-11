@@ -172,7 +172,7 @@ elseif action == "run" then
         print("The API version of Cuprum is not meant to be run directly. Install the normal version to do so.")
         term.setTextColor(colors.white)
     else
-        print("In which mode do you want CUOS to run in [GUI/cli]?")
+        print("In which mode do you want Cuprum to run in [GUI/cli]?")
         ans = string.lower(read())
         local mode = "gui"
         if ans == "cli" then
